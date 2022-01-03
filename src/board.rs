@@ -1,3 +1,8 @@
+use std;
+use std::fmt;
+
+use std::rc::Rc;
+
 
 #[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -42,10 +47,47 @@ impl Piece {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct Augmentation {
+	pub Name: String
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Spot {
+	pub token: Piece,
+	pub augmentations: Vec<Augmentation>
+}
+
+impl Spot {
+	fn empty() -> Self {
+		Spot {
+			token: Piece::empty(),
+			augmentations: vec![]
+		}
+	}
+}
+
+
+#[derive(Debug, Clone)]
+pub struct BoardError {
+	pub message: String,
+}
+
+impl fmt::Display for BoardError {
+	fn fmt(&self, _: &mut fmt::Formatter<'_>) -> Result<(), std::fmt::Error> { todo!() }
+}
+
+impl std::error::Error for BoardError {
+	fn description(&self) -> &str {
+		&self.message
+	}
+}
+
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct GameBoard {
 	pub width: usize,
 	pub height: usize,
-	pub pieces: Vec<Piece>,
+	pub spots: Vec<Spot>,
 }
 
 impl GameBoard {
@@ -53,16 +95,16 @@ impl GameBoard {
 		GameBoard {
 			width: width.into(),
 			height: height.into(),
-			pieces: vec![Piece::empty(); (width * height).into()]
+			spots: vec![Spot::empty(); (width * height).into()]
 		}
 	}
 
 	pub fn get_size (&self) -> usize {
-		self.pieces.len()
+		self.spots.len()
 	}
 
 	pub fn get_used_spaces(&self) -> usize {
-		self.pieces.iter().filter(|&x| *x != Piece::empty()).count()
+		self.spots.iter().filter(|&x| *x != Spot::empty()).count()
 	}
 
 	// TODO put this somewhere else, the board doesn't need to know how to fill itself. That's a function of the game.
@@ -90,21 +132,23 @@ impl GameBoard {
 	// }
 
 	fn spot_empty(&self, row: usize, column: usize) -> bool {
-		let offset = self.width * row;
+		let offset = self.width * (row - 1);
 		let offset = offset + column - 1;
-		self.pieces[offset] == Piece::empty()
+		self.spots[offset].token == Piece::empty()
 	}
 
-	pub fn place_token(&mut self, token: Piece, row: usize, column: usize) -> bool {
+	pub fn place_token(&mut self, token: Piece, row: usize, column: usize) 
+		-> Result<String, BoardError> {
 		if 0 >= row || 0 >= column 
 		|| row > self.height || column > self.width {
-			return false
+			return Err(BoardError { message: "Out of bounds".to_string() });
 		}
 
 		let offset = self.width * (row - 1);
 		let offset = offset + column - 1;
-		self.pieces[offset] = token;
-		true
+		self.spots[offset].token = token;
+		
+		Ok("Success".to_string())
 	}
 }
 
@@ -128,7 +172,7 @@ mod tests{
 		let token = Piece::new("G","","");
 
 		let before = board.get_used_spaces();
-		board.place_token(token, 1, 1);
+		board.place_token(token, 1, 1).unwrap();
 		
 		assert_ne!(before, board.get_used_spaces());
 	}
@@ -139,7 +183,8 @@ mod tests{
 		let token = Piece::new("G","","");
 
 		let before = board.spot_empty(1,1);
-		board.place_token(token, 1, 1);
+		board.place_token(token, 1, 1).unwrap();
+
 		let after = board.spot_empty(1,1);
 		
 		assert_ne!(before, after)
@@ -160,10 +205,14 @@ mod tests{
 		let token = Piece::new("G","","");
 		let token2 = Piece::new("G","","");
 
-		let test1 = board.place_token(token, 9, 1);
-		let test2 = board.place_token(token2, 1, 1);
+		match board.place_token(token, 9, 1) {
+			Ok(_) => assert!(false, "Column 9 should be out of bounds on 8x8 board."),
+			Err(_) => assert!(true),
+		}
 
-		assert_eq!(false, test1);
-		assert_eq!(true, test2);
+		match board.place_token(token2, 1, 1) {
+			Ok(_) => assert!(true),
+			Err(_) => assert!(false, "Location 1,1 should be in bounds on 8x8 board."),
+		}
 	}
 }
