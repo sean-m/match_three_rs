@@ -107,30 +107,6 @@ impl GameBoard {
 		self.spots.iter().filter(|&x| *x != Spot::empty()).count()
 	}
 
-	// TODO put this somewhere else, the board doesn't need to know how to fill itself. That's a function of the game.
-	// pub fn fill_board(&mut self) {
-	// 	while self.get_used_spaces() == 0 {
-	// 		for column in 0.. self.width-1 {
-	// 			self.drop_new_piece(column);
-	// 		}
-	// 	}
-	// }
-
-	// TODO put this somewhere else, the board doesn't need to know how to fill itself. That's a function of the game.
-	// fn drop_new_piece(&mut self, column: usize) {
-	// 	// Place at top
-	// 	if self.spot_empty(0, column) {
-	// 		let token = Piece{ 
-	// 			facet1: String::from("G"),
-	// 			facet2: String::from(""),
-	// 			facet3: String::from(""),
-	// 		};
-	// 		//TODO Make this select random facets
-	// 		//TODO Make randomness depend on gmae rules
-	// 		self.place_token(token, 0, column);
-	// 	}
-	// }
-
 	fn spot_empty(&self, row: usize, column: usize) -> bool {
 		let offset = self.width * (row - 1);
 		let offset = offset + column - 1;
