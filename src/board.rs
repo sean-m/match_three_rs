@@ -115,7 +115,7 @@ impl GameBoard {
 		-> Result<String, BoardError> {
 		if 0 >= row || 0 >= column 
 		|| row > self.height || column > self.width {
-			return Err(BoardError { message: "Out of bounds".to_string() });
+			return Err(BoardError { message: format!("Out of bounds. Board is: {} x {}.", self.width, self.height).to_string() });
 		}
 
 		let offset = self.width * (row - 1);
