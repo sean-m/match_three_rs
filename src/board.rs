@@ -1,8 +1,6 @@
 use std;
 use std::fmt;
 
-use std::rc::Rc;
-
 
 #[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -48,7 +46,7 @@ impl Piece {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Augmentation {
-	pub Name: String
+	pub name: String
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -107,7 +105,7 @@ impl GameBoard {
 		self.spots.iter().filter(|&x| *x != Spot::empty()).count()
 	}
 
-	fn spot_empty(&self, row: usize, column: usize) -> bool {
+	fn is_spot_empty(&self, row: usize, column: usize) -> bool {
 		let offset = self.width * (row - 1);
 		let offset = offset + column - 1;
 		self.spots[offset].token == Piece::empty()
@@ -127,6 +125,7 @@ impl GameBoard {
 		Ok("Success".to_string())
 	}
 }
+
 
 mod tests{
 	use crate::board::*;
@@ -158,28 +157,29 @@ mod tests{
 		let mut board = GameBoard::new(8,8);
 		let token = Piece::new("G","","");
 
-		let before = board.spot_empty(1,1);
+		let before = board.is_spot_empty(1,1);
 		board.place_token(token, 1, 1).unwrap();
 
-		let after = board.spot_empty(1,1);
+		let after = board.is_spot_empty(1,1);
 		
 		assert_ne!(before, after)
 	}
 
-	/*
 	#[test]
-	fn filled_board_is_used_up() {
-		let board = GameBoard::new(8,8);
-		board.fill_board();
-		assert_eq!(board.get_used_spaces(), 64);
+	fn peices_with_the_same_facets_are_the_same () {
+		let token1 = Piece::new("Green","","");
+		let token2 = Piece::new("Green","","");
+		let token3 = Piece::new("Red","","");
+
+		assert_eq!(token1, token2);
+		assert_ne!(token1, token3);
 	}
-	*/
 
 	#[test]
 	fn wont_place_tokens_out_of_bounds() {
 		let mut board = GameBoard::new(8,8);
-		let token = Piece::new("G","","");
-		let token2 = Piece::new("G","","");
+		let token = Piece::new("Green","","");
+		let token2 = Piece::new("Green","","");
 
 		match board.place_token(token, 9, 1) {
 			Ok(_) => assert!(false, "Column 9 should be out of bounds on 8x8 board."),
