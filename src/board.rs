@@ -167,12 +167,15 @@ mod tests{
 
 	#[test]
 	fn peices_with_the_same_facets_are_the_same () {
-		let token1 = Piece::new("Green","","");
-		let token2 = Piece::new("Green","","");
-		let token3 = Piece::new("Red","","");
+		let token1 = Piece::new("Green","Square","");
+		let token2 = Piece::new("Green","Square","");
+		let token3 = Piece::new("Red","Square","");
+		let token4 = Piece::new("Green","Circle","");
 
 		assert_eq!(token1, token2);
 		assert_ne!(token1, token3);
+		assert_ne!(token1, token4);
+		assert_ne!(token3, token4);
 	}
 
 	#[test]
