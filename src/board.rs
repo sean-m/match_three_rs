@@ -2,19 +2,6 @@ use std;
 use std::fmt;
 
 
-#[allow(dead_code)]
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub enum Facet {
-	None,
-	Red,
-	Green,
-	Blue,
-	Square,
-	Diamond,
-	Circle,
-}
-
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Piece {
 	facet1: String,
